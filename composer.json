@@ -1,0 +1,37 @@
+{
+	"name": "michielkeijts/cakephp-minify",
+	"type": "cakephp-plugin",
+	"description": "Minify plugin for CSS/JS/SASS assets in cluding a SASS compile function.",
+	"keywords": ["cakephp","css","js","minify","sass"],
+	"homepage": "http://github.com/michielkeijts/cakephp-cdn",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Michiel Keijts",
+			"homepage": "http://www.michielkeijts.nl",
+			"role": "Contributor"
+		}
+	],
+	"require": {
+		"php": ">=7.1",
+		"cakephp/cakephp": ">=3.7"
+	},
+	"require-dev": {
+	},
+	"suggest": {
+	},
+	"support": {
+		"source": "https://github.com/michielkeijts/cakephp-minify"
+	},
+	"autoload": {
+		"psr-4": {
+			"CakeMinifier\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+		}
+	},
+	"scripts": {
+	}
+}
