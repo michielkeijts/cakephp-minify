@@ -1,6 +1,6 @@
 <?php
 
-namespace CakeMinifier\Controller;
+namespace CakeMinify\Controller;
 
 use App\Controller\AppController as BaseController;
 

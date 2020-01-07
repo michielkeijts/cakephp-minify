@@ -4,11 +4,12 @@
  * 
  */
 
-namespace App\Shell\Task;
+namespace CakeMinify\Stylesheets;
 
 use tubalmartin\CssMin\Minifier;
 use Exception;
-use CakeMinifier\Minify\Helper;
+use CakeMinify\Minify\Helper;
+use Cake\Core\Configure;
 
 /**
  * Updates the CSS files 
@@ -42,11 +43,16 @@ class CssMinifier
     {
         $filesToMerge = [];
 		
+        // temp fix as sass compiler compiles and minifies aleady
         foreach (Configure::read('CakeMinify.Stylesheets.'.$filename) as $filename) {
             $filePath = sprintf('%s%s', $this->baseDir, $filename);
             
             if (!file_exists($filePath)) {
-                throw new Exception("The file {$filePath} could not be found. Run sass compiler again?");
+                $filePath = sprintf('%s%s', Configure::read('app.cssBaseUrl'), $filename);
+                if (!file_exists($filePath)) {
+                    throw new Exception("The file {$filePath} could not be found. Run sass compiler again?");
+                    continue; 
+                }                
             }
             
             $filesToMerge[] = $filePath;
@@ -66,7 +72,7 @@ class CssMinifier
         $output_css = $compressor->run($contents);
         
         $newFilename = sprintf('%s%s.css', $outputFilename, $timestamp);
-        $newFilePath = sprintf('%scompiled/', $cssSourcedir, $newFilename);
+        $newFilePath = sprintf('%s%s', $this->baseDir, $newFilename);
 
         // compress, save and gzip
         $success = $success && Helper::createFile($newFilePath, $output_css);	

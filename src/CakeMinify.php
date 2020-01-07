@@ -7,18 +7,18 @@
  * 
  */
 
-namespace CakeMinifier\Minify\Minifier;
+namespace CakeMinify;
 
-use CakeMinifier\Stylesheets\SassCompiler;
-use App\Shell\Task\CssMinifier;
+use CakeMinify\Stylesheets\SassCompiler;
+use CakeMinify\Stylesheets\CssMinifier;
 use Cake\Core\Configure;
-use Cake\I18n\Time;
 use Exception;
+use CakeMinify\Minify\Helper;
 
 /**
  * Updates the CSS files by copmpiling SASS
  */
-class CakeMinifier
+class CakeMinify
 {
     /**
      * Compiles sass files defined in CakeMinify.Stylesheets
@@ -27,9 +27,9 @@ class CakeMinifier
      * @param string $filename
      * @param string $baseDir To overwrite the path gives opportunity to create multiple versions in subdirs
      * @param string $outputStyle
-     * @return string json
+     * @return stdClass error info containing success parameter
      */
-	public static function compileSass (string $content, string $filename,  string $baseDir = "", string $outputStyle ='compressed') : string
+	public static function compileSass (string $content, string $filename,  string $baseDir = "", string $outputStyle ='compressed') 
     {
         $outputFilepath = sprintf('%s%s', self::getCssBaseDir(), $baseDir);
         
@@ -37,15 +37,22 @@ class CakeMinifier
             if (!mkdir($outputFilepath,0777, true)) {
                 throw Exception("Could not create directories {$outputFilepath}");
             }
+        }       
+        
+        $list_of_files = Helper::getSassFilesFromDirectory(Configure::read("CakeMinify.Sass.path"));
+        
+        foreach ($list_of_files as $filename=>$filepath) {
+            $outputFilename = $outputFilepath . str_replace('.scss', '.css', $filename);
+        
+            $compiler = new SassCompiler($outputFilename, $outputStyle);
+            
+            $message = $compiler->compile($content, [$filepath]);
+            if ($message->success !== TRUE) {
+                return $message;
+            }
         }
         
-        $outputFilename = $outputFilepath + $filename;
-        
-        $compiler = new SassCompiler($outputFilename, $outputStyle);
-        
-        $list_of_files = Configure::read("CakeMinify.StyleSheets.{$filename}");
-        
-        return $compiler->compile($content, $list_of_files);
+        return $message;
     }
     
     /**
@@ -59,7 +66,7 @@ class CakeMinifier
         
         $minifier = new CssMinifier($baseDir);
         
-        $minifier->minify($filename);
+        $minifier->minify($filename, $filename);
     }
 	
     /**

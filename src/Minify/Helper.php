@@ -3,7 +3,7 @@
  * (C) Normit, 2018, Michiel Keijts
  */
 
-namespace CakeMinifier\Minify;
+namespace CakeMinify\Minify;
 
 use Cake\Filesystem\File;
 use Cake\Core\Configure;
@@ -80,4 +80,20 @@ class Helper {
 		
 		return $content;
 	}
+    
+    /**
+     * Return the *.scss files from the $folder directory
+     * @param string $folder;
+     * @return array
+     */
+    public static function getSassFilesFromDirectory(string $folder) : array
+    {
+        $return_list = [] ;
+        $Folder = new Folder($folder);
+        foreach ($Folder->find('.*\.scss') as $filename) {
+            $return_list[$filename] = $folder . $filename;
+        }
+        
+        return $return_list;
+    }
 }

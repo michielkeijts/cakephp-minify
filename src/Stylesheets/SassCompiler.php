@@ -3,12 +3,13 @@
  * @copyright (C) 2018 Michiel Keijts, Normit
  * 
  */
-namespace CakeMinifier\Stylesheets;
+namespace CakeMinify\Stylesheets;
 
 use Cake\Filesystem\File;
 use Cake\Http\Exception\NotFoundException;
 use Cake\View\View;
 use Cake\Log\Log;
+use Cake\Core\Configure;
 
 
 /**
@@ -29,7 +30,7 @@ class SassCompiler {
      * Name of the viewFile to render the node-sass command
      * @var string
      */
-    public $viewFile = 'Node/sass_compile';
+    public $viewFile = 'CakeMinify.Node/sass_compile';
     
     /**
      * Name of the outputFile
@@ -51,9 +52,10 @@ class SassCompiler {
     
     /**
      * Create compiler
-     * @param $filenam the output filename
+     * @param $outputFilename the output filename (should have .css extension
+     * @param $outputStyle  default ('crunched')
      */
-    public function __construct(string $outputFilename, string $outputStyle ='compressed') {
+    public function __construct(string $outputFilename, string $outputStyle ='crunched') {
         $this->_view = new View();
         $this->_outputFilename = $outputFilename;
         $this->_outputStyle = $outputStyle;
@@ -65,6 +67,16 @@ class SassCompiler {
      */
     public function compile($content = "", $list_of_files = []) 
     {
+        // add correct path
+        if (substr(reset($list_of_files),0,1) !== DS) {
+            $sassPath = Configure::read('CakeMinify.Sass.path');
+        
+            // set in correct path and scss extension
+            foreach ($list_of_files as &$file) {
+                $file = $sassPath . str_replace('.css','.scss',$file);
+            }       
+        }
+        
         $this->setContent($content, $list_of_files);
         $this->setViewVariables();
         $node_sass_content = $this->_view->render($this->viewFile,'ajax');
@@ -76,7 +88,7 @@ class SassCompiler {
         $data = new \stdClass();
         $data->outputFilename = $this->_outputFilename;
         $data->outputStyle = $this->_outputStyle;
-        $data->includePaths = [Configure::read('CakeMinify.Sass.Path')];
+        $data->includePaths = [Configure::read('CakeMinify.Sass.path')];
         $data->data = $this->getContent();
                 
         $this->_view
@@ -89,9 +101,9 @@ class SassCompiler {
     /**
      * Execute the node-sass compiler
      * @param type $node_sass_content
-     * @return string json string (empty in case no error)
+     * @return \stdClass json decodeded string (empty in case no error)
      */
-    private function execute($node_sass_content) : string
+    private function execute($node_sass_content)
     {
         $executableFile = static::getTmpFileForContent($node_sass_content);
 
@@ -110,10 +122,11 @@ class SassCompiler {
 
         if ($return_code > 0) {
             Log::error("Sass Compiler Error: \n" . implode("\n", $output));
-            return $this->formatErrorAsJSON($output);
+            $error = json_decode($this->formatErrorAsJSON($output));
+            return $error;
         }
         
-        return "{success:true}";
+        return json_decode("{\"success\":true}");
     }
     
     /**
@@ -144,13 +157,15 @@ class SassCompiler {
             $i = str_replace(["'",'"'],["","'"],$i);
         }
         
-        $json = json_decode(json_encode(array_combine($output_array[1], $output_array[2], ["success"=>FALSE])));
+        $obj = json_decode(json_encode(array_combine($output_array[1], $output_array[2])));
+        
+        $obj->success = FALSE;
         
         if (json_last_error() !== 0) {
             return "{success:false}";
         }
         
-        return $json;
+        return json_encode($obj);
     }
     
     /**

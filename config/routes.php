@@ -4,7 +4,7 @@ use Cake\Routing\Router;
 use Cake\Routing\Route\DashedRoute;
 
 Router::plugin(
-    'CakeMinifier',
+    'CakeMinify',
     ['path' => '/cake-minifier'],
     function (RouteBuilder $routes) {
         $routes->fallbacks(DashedRoute::class);

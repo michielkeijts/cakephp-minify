@@ -1,11 +1,11 @@
 <?php
 
-namespace CakeMinifier;
+namespace CakeMinify;
 
 use Cake\Core\BasePlugin;
 
 /**
- * Plugin for CakeMinifier
+ * Plugin for CakeMinify
  */
 class Plugin extends BasePlugin
 {
