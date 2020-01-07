@@ -66,7 +66,7 @@ class CakeMinify
         
         $minifier = new CssMinifier($baseDir);
         
-        $minifier->minify($filename, $filename);
+        return $minifier->minify($filename, $filename);
     }
 	
     /**

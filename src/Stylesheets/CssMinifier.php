@@ -37,9 +37,9 @@ class CssMinifier
      * @param int $site_id
      * @param string $language
      * @param string $theme
-     * @return boolean
+     * @return string name of minified file
      */
-    public function minify(string $filename, string $outputFilename, bool $createGzip = FALSE)
+    public function minify(string $filename, string $outputFilename, bool $createGzip = FALSE) : string
     {
         $filesToMerge = [];
 		
@@ -80,6 +80,10 @@ class CssMinifier
             $success = $success && Helper::createGzipFile($newFilePath, $output_css);
         }
 
-        return true;
+        if (!$success) {
+            throw new Exception("Failed creating a minified CSS version {$newFilePath}");
+        }
+        
+        return $newFilename;
 	}
 }
