@@ -55,10 +55,10 @@ class SassCompiler {
      * @param $outputFilename the output filename (should have .css extension
      * @param $outputStyle  default ('crunched')
      */
-    public function __construct(string $outputFilename, string $outputStyle ='crunched') {
+    public function __construct(string $outputFilename, string $outputStyle = NULL) {
         $this->_view = new View();
         $this->_outputFilename = $outputFilename;
-        $this->_outputStyle = $outputStyle;
+        $this->_outputStyle = empty($outputStyle) ? Configure::read('CakeMinify.sass.outputStyle') : $outputStyle;
     }  
     
     /**

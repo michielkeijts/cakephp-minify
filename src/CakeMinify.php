@@ -11,6 +11,7 @@ namespace CakeMinify;
 
 use CakeMinify\Stylesheets\SassCompiler;
 use CakeMinify\Stylesheets\CssMinifier;
+use CakeMinify\Scripts\JsMinifier;
 use Cake\Core\Configure;
 use Exception;
 use CakeMinify\Minify\Helper;
@@ -68,6 +69,20 @@ class CakeMinify
         
         return $minifier->minify($filename, $filename);
     }
+    
+    /**
+     * Create CSS Files
+     * @param string $filename
+     * @param string $baseDir
+     */
+    public static function createJsFiles (string $filename, string $baseDir = "", bool $createGzip = FALSE, int $timestamp = 0 ) : string
+    {
+        $baseDir = self::getJsBaseDir() . $baseDir;
+        
+        $minifier = new JsMinifier($baseDir);
+        
+        return $minifier->minify($filename, $filename, $createGzip, $timestamp);
+    }
 	
     /**
      * @return string the css base dir
@@ -77,6 +92,18 @@ class CakeMinify
         return sprintf('%s%s%s', 
                 WWW_ROOT, 
                 Configure::read('App.cssBaseUrl', "css"),
+                Configure::read('CakeMinify.outputDir', "compiled")
+            );
+    }
+    
+    /**
+     * @return string the js base dir
+     */
+    public static function getJsBaseDir() : string
+    {
+        return sprintf('%s%s%s', 
+                WWW_ROOT, 
+                Configure::read('App.jsBaseUrl', "css"),
                 Configure::read('CakeMinify.outputDir', "compiled")
             );
     }

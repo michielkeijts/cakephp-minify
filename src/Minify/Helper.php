@@ -96,4 +96,21 @@ class Helper {
         
         return $return_list;
     }
+    
+    /**
+	 * Get the sum of all files' creationtime
+	 * @param array $files
+	 * @param string $path
+	 * @return int
+	 */
+	public static function getTimestampSumOfFiles(array $files) : int
+	{
+		$timestamp = 0;
+		// timestamp all files and add
+		foreach ($files as $file) {
+			$timestamp+= filemtime($file);
+		}
+		
+		return $timestamp;
+	}
 }

@@ -48,7 +48,7 @@ class CssMinifier
             $filePath = sprintf('%s%s', $this->baseDir, $filename);
             
             if (!file_exists($filePath)) {
-                $filePath = sprintf('%s%s', Configure::read('app.cssBaseUrl'), $filename);
+                $filePath = sprintf('%s%s%s', WWW_ROOT, Configure::read('App.cssBaseUrl'), $filename);
                 if (!file_exists($filePath)) {
                     throw new Exception("The file {$filePath} could not be found. Run sass compiler again?");
                     continue; 
