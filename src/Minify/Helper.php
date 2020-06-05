@@ -113,4 +113,28 @@ class Helper {
 		
 		return $timestamp;
 	}
+    
+    
+    /**
+     * Save the content to a file and return filename. This is the executable 
+     * for the NodeJS
+     * @param mixed $content
+     * @param string $filename
+     * @return string
+     */
+    public static function getTmpFileForContent($content, string $filename = null) : string
+    {
+        if (empty($filename)) {
+            $filename = uniqid();
+        }
+        
+        $tmpFileName = sprintf('%s%s', TMP, $filename);
+        $tmpFile = new File($tmpFileName);
+        
+        $tmpFile->write($content);  
+        
+        $tmpFile->close();
+        
+        return $tmpFileName;
+    }   
 }

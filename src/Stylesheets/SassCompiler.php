@@ -10,6 +10,7 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\View\View;
 use Cake\Log\Log;
 use Cake\Core\Configure;
+use CakeMinify\Minify\Helper;
 
 
 /**
@@ -105,7 +106,7 @@ class SassCompiler {
      */
     private function execute($node_sass_content)
     {
-        $executableFile = static::getTmpFileForContent($node_sass_content);
+        $executableFile = Helper::getTmpFileForContent($node_sass_content);
 
         // execute the file
         $output = [];
@@ -209,24 +210,5 @@ class SassCompiler {
         $this->_content = sprintf("%s\n%s", $this->_content, $content);
         
         return $this->_content;
-    }
-
-    /**
-     * Save the content to a file and return filename. This is the executable 
-     * for the NodeJS
-     * @param string $content
-     * @return string
-     */
-    private function getTmpFileForContent($content) : string
-    {
-        $tmpFileName = sprintf('%s%s', TMP, uniqid());
-        $tmpFile = new File($tmpFileName);
-        
-        
-        $tmpFile->write($content);  
-        
-        $tmpFile->close();
-        
-        return $tmpFileName;
-    }           
+    }        
 }
