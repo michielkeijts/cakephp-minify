@@ -63,7 +63,7 @@ class JsMinifier {
         
         // check timestamp if necessary to change the files
         if ($checkTimestamp >= 0 
-                && $checkTimestamp < $timestamp
+                && $checkTimestamp <= $timestamp
                 && file_exists($newFilePath)) {
             
             return $newFilename; // do not update
