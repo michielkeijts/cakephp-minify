@@ -66,7 +66,7 @@ class SassCompiler {
      * Compile execute
      * @return string json empty if ok, or sass error. 
      */
-    public function compile($content = "", $list_of_files = []) 
+    public function compile(array $content = [], $list_of_files = []) 
     {
         // add correct path
         if (substr(reset($list_of_files),0,1) !== DS) {
@@ -180,14 +180,15 @@ class SassCompiler {
     
 	/**
      * Set contents to $content + content of files
-     * @param string $content
+     * @param array $content
      * @param array $list_of_files
      * @return string
      * @throws NotFoundException
      */
-    private function setContent(string $content, array $list_of_files) : string
+    private function setContent(array $content, array $list_of_files) : string
     {
-        $this->appendContent($content);
+        $content = $content + ['before' => "", 'after' => ""];
+        $this->appendContent($content['before']);
         foreach ($list_of_files as $filename) {
             $fcontent = file_get_contents($filename);
             if ($fcontent !== FALSE) {
@@ -196,6 +197,7 @@ class SassCompiler {
                 throw new NotFoundException("Could not find file: {$filename}");
             }
         }    
+        $this->appendContent($content['after']);
 
         return $this->_content;
     }

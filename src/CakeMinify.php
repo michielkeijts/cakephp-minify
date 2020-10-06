@@ -24,14 +24,18 @@ class CakeMinify
     /**
      * Compiles sass files defined in CakeMinify.Stylesheets
      * Output JSON from compiler 
-     * @param string $content
+     * @param array $content ['before'=>.., 'after'=>..]
      * @param string $filename
      * @param string $baseDir To overwrite the path gives opportunity to create multiple versions in subdirs
      * @param string $outputStyle
      * @return stdClass error info containing success parameter
      */
-	public static function compileSass (string $content, string $filename,  string $baseDir = "", string $outputStyle ='compressed') 
+	public static function compileSass ($content, string $filename,  string $baseDir = "", string $outputStyle ='compressed') 
     {
+        if (is_string($content)) {
+            $content = ['before' => $content];
+        }
+        
         $outputFilepath = sprintf('%s%s', self::getCssBaseDir(), $baseDir);
         
         if (!file_exists($outputFilepath)) {
