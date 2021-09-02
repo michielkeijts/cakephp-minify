@@ -5,7 +5,7 @@
  */
 ?>
 var 
-    sass = require('sass'),
+    sass = require('node-sass'),
     fs = require('fs');
 
 sass.render(<?= json_encode($data); ?>, function(err, result) { 
