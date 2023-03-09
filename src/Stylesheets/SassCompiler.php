@@ -146,27 +146,26 @@ class SassCompiler {
         // remove first line
         $error = '{'.implode('', array_slice($err, 1));
 
-        if (preg_match_all('/([a-z0-9]+):\s?([^,]+)/i', $error, $output_array) === FALSE)
+        $error = [];
+        for ($index=0; $index<count($err);$index++) {
+            $line = $err[$index];
+            if (strpos($line, 'formatted:') !== FALSE) {
+                $error['message'] = trim(str_replace(["'",'\\"'],["","'"], trim($err[++$index]))," \0,");
+            }
+            if (preg_match('/line: (.*)/i', $line, $matches) === 1) {
+                $error['line'] = trim(end($matches)," \0,");
+            }
+            if (preg_match('/column: (.*)/i', $line, $matches) === 1) {
+                $error['column'] = trim(end($matches), " \0,");
+            }
+        }
+
+        if (preg_match_all('/([a-z0-9\-]+):\s?([^,]+)/i', implode("", $err), $output_array) === FALSE)
             return "{success:false}";
 
-        array_pop($output_array[1]);
-        array_pop($output_array[2]);
-        foreach ($output_array[1] as &$i) {
-            $i = str_replace(["'",'\\"'],["","'"],$i);
-        }
-        foreach ($output_array[2] as &$i) {
-            $i = str_replace(["'",'"'],["","'"],$i);
-        }
+        $error['success'] = FALSE;
 
-        $obj = json_decode(json_encode(array_combine($output_array[1], $output_array[2])));
-
-        $obj->success = FALSE;
-
-        if (json_last_error() !== 0) {
-            return "{success:false}";
-        }
-
-        return json_encode($obj);
+        return json_encode($error);
     }
 
     /**
