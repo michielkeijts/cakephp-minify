@@ -5,19 +5,17 @@
 
 namespace CakeMinify\Minify;
 
-use Cake\Filesystem\File;
 use Cake\Core\Configure;
 use Exception;
 use App\Model\Entity\Config;
-use Cake\Filesystem\Folder;
 
 /**
  * Minifyhelper is a static class helping with the minification of the assets
- * 
+ *
  * @author Michiel Keijts, Normit
  */
 class Helper {
-    
+
     /**
 	 * Create a compressed file
 	 * @param string $filename
@@ -26,14 +24,14 @@ class Helper {
 	public static function createGzipFile (string $filename, $contents):bool
 	{
 		$filename .= '.gz'; // add gz exension
-        $this->out(sprintf('Creating file %s', $filename));
+        printf('Creating file %s', $filename);
 		$file=gzopen($filename, 'w9');
 		gzwrite($file, $contents);
 		gzclose($file);
-		
+
 		return file_exists($filename);
 	}
-    
+
      /**
      * Creates a file at given path
      *
@@ -45,26 +43,36 @@ class Helper {
     public static function createFile($path, $contents, $overwrite = TRUE) : bool
     {
         $fileExists = is_file($path);
-        
+
         if ($fileExists && !$overwrite) {
             throw new Exception("File Exists and not allowed to overwrite");
         }
 
-        $File = new File($path, true);
-
-        try {
-            if ($File->exists() && $File->writable()) {
-                $File->write($contents);
-
-                return true;
-            }
-        } finally {
-            $File->close();
-        }
-        
-        return false;
+        return static::checkDirExists($path) && file_put_contents($path, $contents) !== FALSE;
     }
-    
+
+    /**
+     * For a (new) File, checks if the underlying path (dir) exists
+     * @param string $path
+     * @return bool
+     */
+    public static function checkDirExists(string $path) : bool
+    {
+        $dirParts = explode('/', str_replace(ROOT,'', $path));
+
+        array_pop($dirParts);
+
+        $current_dir = ROOT;
+        foreach ($dirParts as $part) {
+            $current_dir .= DS . $part;
+            if (!is_dir($current_dir) && !mkdir($current_dir)) {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
+    }
+
     /**
 	 * Get the concatenated content of all files
 	 * @param array $files
@@ -77,10 +85,10 @@ class Helper {
 		foreach ($files as $file) {
 			$content = sprintf("%s\n\n%s", $content, file_get_contents($file));
 		}
-		
+
 		return $content;
 	}
-    
+
     /**
      * Return the *.scss files from the $folder directory
      * @param string $folder;
@@ -89,14 +97,15 @@ class Helper {
     public static function getSassFilesFromDirectory(string $folder) : array
     {
         $return_list = [] ;
-        $Folder = new Folder($folder);
-        foreach ($Folder->find('.*\.scss') as $filename) {
-            $return_list[$filename] = $folder . $filename;
+        foreach (scandir($folder) as $filename) {
+            if (preg_match('/.*\.scss/', $filename) === 1) {
+                $return_list[$filename] = $folder . $filename;
+            }
         }
-        
+
         return $return_list;
     }
-    
+
     /**
 	 * Get the sum of all files' creationtime
 	 * @param array $files
@@ -110,13 +119,13 @@ class Helper {
 		foreach ($files as $file) {
 			$timestamp+= filemtime($file);
 		}
-		
+
 		return $timestamp;
 	}
-    
-    
+
+
     /**
-     * Save the content to a file and return filename. This is the executable 
+     * Save the content to a file and return filename. This is the executable
      * for the NodeJS
      * @param mixed $content
      * @param string $filename
@@ -127,14 +136,10 @@ class Helper {
         if (empty($filename)) {
             $filename = uniqid();
         }
-        
+
         $tmpFileName = sprintf('%s%s', TMP, $filename);
-        $tmpFile = new File($tmpFileName);
-        
-        $tmpFile->write($content);  
-        
-        $tmpFile->close();
-        
+
+        file_put_contents($tmpFileName, $content);
         return $tmpFileName;
-    }   
+    }
 }

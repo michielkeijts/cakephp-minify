@@ -1,14 +1,16 @@
 <?php
-/* 
+/**
  * @copyright (C) 2018 Michiel Keijts, Normit
- * 
+ *
+ * @var mixed $data
+ * @var string $outputFilename
  */
 ?>
-var 
+var
     sass = require('sass'),
     fs = require('fs');
 
-sass.render(<?= json_encode($data); ?>, function(err, result) { 
+sass.render(<?= json_encode($data); ?>, function(err, result) {
     if(!err) {
         fs.writeFile("<?= $outputFilename; ?>", result.css, function(err) {
             if(err) {
@@ -16,9 +18,9 @@ sass.render(<?= json_encode($data); ?>, function(err, result) {
                 return process.exit(1);
             }
             console.log("The file <?= $outputFilename; ?> was saved!");
-        }); 
+        });
     } else {
         console.log(err);
         return process.exit(1);
-    } 
+    }
 });
